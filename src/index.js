@@ -5,9 +5,9 @@ var
   program = require('commander');
 
 program
-  .usage('[options] <domain>')
-  .option('-L, --nolog', 'Do not log to a file')
-  .option('-v, --verbose', 'Verbose mode')
+  .usage('[options] [task]')
+  .option('-r, --report', 'print an hours report')
+  .option('-t, --time <items>', 'backdates by time specified (i.e. 1h 5m)')
   .parse(process.argv);
 
 if (program.args.length === 0) {
@@ -16,7 +16,6 @@ if (program.args.length === 0) {
 }
 
 main(program.args.join(" "), {
-  nolog: program.nolog,
-  unavailable: program.unavailable === true,
-  verbose: program.verbose === true
+  report: program.report,
+  time: program.time
 });
