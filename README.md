@@ -1,8 +1,6 @@
 timelog
 =========
 
-STATUS: NOT WORKING
-
 Node.js command line tool to quickly keep track of your time
 
 Install
@@ -12,6 +10,12 @@ Install
 npm install -g timelog
 ```
 
+Or if you are developing
+```bash
+git clone git@github.com:garrows/timelog.git
+npm install -g ./timelog
+```
+
 > With [node](http://nodejs.org) installed.
 
 Usage
@@ -19,9 +23,15 @@ Usage
 
 ```bash
 timelog arrived
-timelog checked emails --admin
-timelog fixed bug --chi
+timelog checked work emails
+timelog cat-project: fixed 404 catbug
+timelog lunch **
+timelog cat-project: added concat feature
 ```
+
+`**` indicates that it shouldn't count towards your work hours.
+
+`cat-project:` indicates its part of the _cat-project_ category and will be bunched together in the report.
 
 Options
 ----
@@ -32,7 +42,5 @@ Usage: index [options] <domain>
 Options:
 
   -h, --help          output usage information
-  -L, --nolog         Do not log to a file
-  -t, --tlds <items>  Comma seperated list of TLDS to search
-  -v, --verbose       Verbose mode
+  -r, --report         Do not log to a file
 ```
