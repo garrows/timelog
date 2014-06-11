@@ -1,0 +1,47 @@
+{
+  "name": "timelog",
+  "version": "1.0.1",
+  "description": "Node.js command line tool to quickly search available DNS names.",
+  "main": "src/index.js",
+  "preferGlobal": "true",
+  "bin": {
+    "timelog": "src/index.js"
+  },
+  "dependencies": {
+    "async": "~0.7.0",
+    "cli-color": "^0.2.3",
+    "commander": "^2.2.0",
+    "request": "~2.34.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.6.1",
+    "gulp-jshint": "^1.5.3",
+    "jshint-stylish": "^0.1.5",
+    "gulp-shell": "^0.2.4"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/garrows/timelog.git"
+  },
+  "keywords": [
+    "dns",
+    "search",
+    "timelog",
+    "tool",
+    "cli"
+  ],
+  "author": {
+    "name": "Glen Arrowsmith",
+    "email": "glen.arrowsmith@gmail.com",
+    "url": "http://garrows.com/"
+  },
+  "contributors": [],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/garrows/timelog/issues"
+  },
+  "homepage": "https://github.com/garrows/timelog"
+}
