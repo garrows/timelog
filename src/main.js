@@ -14,9 +14,33 @@ function getUserHome() {
     return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
-var formatDate = function(date) {
-    var m = moment.duration(date);
+var formatTimeDiff = function(diff) {
+    var m = moment.duration(diff);
     return m.hours() + "h " + m.minutes() + "m ";
+}
+
+var getLastLine = function(callback) {
+    fs.stat(logFileName, function(err, stat) {
+        fs.open(logFileName, 'r', function(err, fd) {
+            if(err) throw err;
+            var i = 0;
+            var line = '';
+            var readPrevious = function(buf) {
+                fs.read(fd, buf, 0, buf.length, stat.size-buf.length-i, function(err, bytesRead, buffer) {
+                    if(err) throw err;
+                    line = String.fromCharCode(buffer[0]) + line;
+                    if (buffer[0] === 0x0a && line.length > 1) { //0x0a == '\n'
+                        //console.log("getLastLine", line.length, line);
+                        callback(null, line);
+                    } else {
+                        i++;
+                        readPrevious(new Buffer(1));
+                    }
+                });
+            }
+            readPrevious(new Buffer(1));
+        });
+    });
 }
 
 function report(task, options) {
@@ -30,42 +54,71 @@ function report(task, options) {
         var line = lineBuffer.toString();
         var split = line.split('\t');
         var dateTime = new Date(split[0]);
-        var date = new Date(split[0].split('T')[0]);
+        var dateKey = split[0].split('T')[0];
+        var date = new Date(dateKey);
 
-        if (dates[date] == undefined) {
-            dates[date] = {
+        if (dates[dateKey] == undefined) {
+            dates[dateKey] = {
                 timeWorked : 0,
                 timeSlacked : 0,
                 last : dateTime
             };
         } else {
             if (line.indexOf("**") === -1) {
-                dates[date].timeWorked += dateTime - dates[date].last;
+                dates[dateKey].timeWorked += dateTime - dates[dateKey].last;
             } else {
-                dates[date].timeSlacked += dateTime - dates[date].last;
+                dates[dateKey].timeSlacked += dateTime - dates[dateKey].last;
             }
-            dates[date].last = dateTime;
+            dates[dateKey].last = dateTime;
         }
     });
 
     stream.on('end', function() {
-        var date = Object.keys(dates)[0];
+        var dateKeys = Object.keys(dates);
+        var totalTimeWorked = 0;
+        var totalTimeSlacked = 0;
+        for (var i = 0; i < dateKeys.length; i++) {
+            var date = dateKeys[i];
+            console.log(
+                moment(date, "YYYY-MM-DD").format('dddd') + '\t' +
+                formatTimeDiff(dates[date].timeWorked) + 'worked.\t\t' +
+                formatTimeDiff(dates[date].timeSlacked) + 'slacked.'
+                // moment.duration(dates[date].timeSlacked)
+            );
+            totalTimeWorked += dates[date].timeWorked;
+            totalTimeSlacked += dates[date].timeSlacked;
+        }
+        console.log('----------------------------------------');
         console.log(
-            moment(date, "YYYY-MM-DD").format('dddd') + '\t' +
-            formatDate(dates[date].timeWorked) + 'worked.\t\t' +
-            formatDate(dates[date].timeSlacked) + 'slacked.'
+            'Total:\t' +
+            formatTimeDiff(totalTimeWorked) + 'worked.\t\t' +
+            formatTimeDiff(totalTimeSlacked) + 'slacked.'
             // moment.duration(dates[date].timeSlacked)
         );
+
     });
 }
 
 function log(task) {
-    var time = (new Date()).toISOString();
+    var time = new Date();
 
-    fs.appendFile(logFileName, time + '\t' + task + '\n', function (err) {
-        if (err) throw err;
-        console.log("Done");
-    });
+    getLastLine(function(err, line) {
+        var lastDate = time;
+        console.log('line', line);
+        if (!err) {
+            console.log('date', line.split('\t')[0].trim())
+            lastDate = new Date(line.split('\t')[0].trim());
+            console.log('datedate', lastDate);
+        }
+
+        fs.appendFile(logFileName, time.toISOString() + '\t' + task + '\n', function (err) {
+            if (err) throw err;
+
+            console.log("Took " + formatTimeDiff(time - lastDate));
+        });
+    })
+
+
 }
 
 module.exports = function (task, options) {
