@@ -53,6 +53,7 @@ function report(task, options) {
     .forEach(function(lineBuffer){
         var line = lineBuffer.toString();
         var split = line.split('\t');
+        var activity = split.slice(1).join('\t');
         var dateTime = new Date(split[0]);
         var dateKey = split[0].split('T')[0];
         var date = new Date(dateKey);
@@ -63,12 +64,24 @@ function report(task, options) {
                 timeSlacked : 0,
                 last : dateTime
             };
+
+            console.log(
+                '----------------' +
+                moment(dateKey, "YYYY-MM-DD").format('dddd') +
+                '----------------'
+            );
+
         } else {
+            var timeDiff = dateTime - dates[dateKey].last;
             if (line.indexOf("**") === -1) {
-                dates[dateKey].timeWorked += dateTime - dates[dateKey].last;
+                dates[dateKey].timeWorked += timeDiff;
             } else {
-                dates[dateKey].timeSlacked += dateTime - dates[dateKey].last;
+                dates[dateKey].timeSlacked += timeDiff;
             }
+            console.log(
+                formatTimeDiff(timeDiff) + '\t' +
+                activity
+            );
             dates[dateKey].last = dateTime;
         }
     });
@@ -77,6 +90,7 @@ function report(task, options) {
         var dateKeys = Object.keys(dates);
         var totalTimeWorked = 0;
         var totalTimeSlacked = 0;
+        console.log('========================================');
         for (var i = 0; i < dateKeys.length; i++) {
             var date = dateKeys[i];
             console.log(
@@ -88,12 +102,11 @@ function report(task, options) {
             totalTimeWorked += dates[date].timeWorked;
             totalTimeSlacked += dates[date].timeSlacked;
         }
-        console.log('----------------------------------------');
+        console.log('========================================');
         console.log(
             'Total:\t' +
             formatTimeDiff(totalTimeWorked) + 'worked.\t\t' +
-            formatTimeDiff(totalTimeSlacked) + 'slacked.'
-            // moment.duration(dates[date].timeSlacked)
+            formatTimeDiff(totalTimeSlacked) + 'slacked.\n'
         );
 
     });
@@ -123,7 +136,7 @@ function log(task) {
 
 module.exports = function (task, options) {
 
-    console.log(task, options);
+    //console.log(task, options);
 
 
 
