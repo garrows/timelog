@@ -55,8 +55,8 @@ function report(task, options) {
         var split = line.split('\t');
         var activity = split.slice(1).join('\t');
         var dateTime = new Date(split[0]);
-        var dateKey = split[0].split('T')[0];
-        var date = new Date(dateKey);
+        var date = new Date(split[0]);
+        var dateKey = date.toLocaleDateString();
 
         if (dates[dateKey] == undefined) {
             dates[dateKey] = {
@@ -67,7 +67,7 @@ function report(task, options) {
 
             console.log(
                 '----------------' +
-                moment(dateKey, "YYYY-MM-DD").format('dddd') +
+                moment(dateKey, "dddd, MMMM DD YYYY").format('dddd') +
                 '----------------'
             );
 
@@ -92,15 +92,15 @@ function report(task, options) {
         var totalTimeSlacked = 0;
         console.log('========================================');
         for (var i = 0; i < dateKeys.length; i++) {
-            var date = dateKeys[i];
+            var dateKey = dateKeys[i];
             console.log(
-                moment(date, "YYYY-MM-DD").format('dddd') + '\t' +
-                formatTimeDiff(dates[date].timeWorked) + 'worked.\t\t' +
-                formatTimeDiff(dates[date].timeSlacked) + 'slacked.'
-                // moment.duration(dates[date].timeSlacked)
+                moment(dateKey, "dddd, MMMM DD YYYY").format('ddd') + '\t' +
+                formatTimeDiff(dates[dateKey].timeWorked) + 'worked.\t\t' +
+                formatTimeDiff(dates[dateKey].timeSlacked) + 'slacked.'
+                // moment.duration(dates[dateKey].timeSlacked)
             );
-            totalTimeWorked += dates[date].timeWorked;
-            totalTimeSlacked += dates[date].timeSlacked;
+            totalTimeWorked += dates[dateKey].timeWorked;
+            totalTimeSlacked += dates[dateKey].timeSlacked;
         }
         console.log('========================================');
         console.log(
